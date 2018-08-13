@@ -1,21 +1,20 @@
 import random
 
 import scrapy
-from bs4 import BeautifulSoup as bs
 from scrapy.http import Request
 
 from shanghai_top_spider.items import ShanghaiTopSpiderItem
 from user_agent import agents
-from user_agent import proxies
 
 
 class ShanghaiTopCrawler(scrapy.Spider):
     name = "shanghai_top_spider"
     allowed_domains = ["dianping.com"]
     start_urls = [
-        "http://www.dianping.com/search/keyword/1/0_%E6%99%AF%E7%82%B9/o2",
-        "http://www.dianping.com/search/keyword/1/0_%E5%95%86%E5%9C%88/o2",
-        "http://www.dianping.com/search/keyword/1/0_%E5%B0%8F%E5%90%83%E8%A1%97/o2"
+        # "http://www.dianping.com/search/keyword/1/0_%E6%99%AF%E7%82%B9/o2",
+        # "http://www.dianping.com/search/keyword/1/0_%E5%95%86%E5%9C%88/o2",
+        # "http://www.dianping.com/search/keyword/1/0_%E5%B0%8F%E5%90%83%E8%A1%97/o2"
+        "file:///C:/Users/17092/Desktop/Untitled2.html"
     ]
 
     def start_requests(self):
@@ -29,18 +28,32 @@ class ShanghaiTopCrawler(scrapy.Spider):
                 'User-Agent': random.choice(agents),
                 'Referer': url,
             }
-            yield Request(url, callback=self.parse, headers=header, meta={'proxy': 'http://' + random.choice(proxies)})
+            yield Request(url, callback=self.parse, headers=header)
 
     def parse(self, response):
         self.logger.info('the url is :%s', response.url)
         if response.status == 200:
-            soup = bs(response.text, 'html.parser')
-            # 获取主要内容并去掉广告
-
-            main_content = soup.select('#shop-all-list')
-            index = 1
-            for content in main_content:
-                site_name = content.select('ul > li:nth-child(' + str(index) + ') > div.txt > div.tit > a > h4');
+            hxs = scrapy.Selector(response)
+            xs = hxs.xpath('//*[@id="shop-all-list"]/ul/li')
+            for x in xs:
                 storage_item = ShanghaiTopSpiderItem()
+                site_name = x.xpath('div[2]/div[1]/a[1]/h4/text()').extract()
+                url = x.xpath('div[2]/div[1]/a[1]/@href').extract()
+                site_id = x.xpath('div[2]/div[1]/a[1]/@data-shopid').extract()
+                star = x.xpath('div[2]/div[2]/span/@title').extract()
+                region_name = x.xpath('div[2]/div[3]/a[2]/span/text()').extract()
+                category_name = x.xpath('div[2]/div[3]/a[1]/span/text()').extract()
+                address = x.xpath('div[2]/div[3]/span/text()').extract()
+                img_url = x.xpath('div[1]/a/img/@src').extract()
+
                 storage_item['site_name'] = site_name
-                index += 1
+                storage_item['url'] = url
+                storage_item['site_id'] = site_id
+                storage_item['star'] = star
+                storage_item['region_name'] = region_name
+                storage_item['category_name'] = category_name
+                storage_item['address'] = address
+                storage_item['img_url'] = img_url
+                yield storage_item
+            else:
+                return ''
