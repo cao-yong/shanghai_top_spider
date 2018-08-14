@@ -19,9 +19,13 @@ class ShanghaiTopSpiderItem(scrapy.Item):
     star = scrapy.Field()
     # 所在区域名称
     region_name = scrapy.Field()
+    # 类别
+    category_type = scrapy.Field()
     # 类别名称
     category_name = scrapy.Field()
     # 地址
     address = scrapy.Field()
     # 图片url
     img_url = scrapy.Field()
+    # 序号
+    sort = scrapy.Field()

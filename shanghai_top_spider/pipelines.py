@@ -40,10 +40,10 @@ class ShanghaiTopSpiderPipeline(object):
         # sql="insert into testtable(name,url) values(%s,%s)"
         # 需要插入到数据库的字段和相应的值
         sql = "INSERT INTO `shanghai-top`.`top_site`(`url`,`site_name`,`site_id`,`star`," \
-              "`region_name`,`category_name`,`address`,`img_url`,`create_time`,`update_time`," \
-              "`sort`,`is_deleted`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,NOW(),NOW(),%s,'N')"
+              "`region_name`,`category_type`,`category_name`,`address`,`img_url`,`create_time`,`update_time`," \
+              "`sort`,`is_deleted`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW(),NOW(),%s,'N')"
         params = (item["url"], item["site_name"], item["site_id"], item["star"], item["region_name"],
-                  item["star"], item["category_name"], item["address"], item["img_url"], self.count)
+                  item["category_type"], item["category_name"], item["address"], item["img_url"], item["sort"])
         tx.execute(sql, params)
         self.count = self.count + 1
         print('成功插入 %s 条数据到数据库' % self.count)
